@@ -12,17 +12,18 @@ export interface RegisterParams {
 }
 
 export interface Profile {
-  Email: string
-  Phone: string
-  Nickname: string
-  Birthday: string
-  AboutMe: string
+  id: number
+  email: string
+  phone: string
+  nickname: string
+  birthday: string
+  description: string
 }
 
 export interface EditProfileParams {
   nickname: string
   birthday: string
-  aboutMe: string
+  description: string
 }
 
 export interface SMSLoginParams {

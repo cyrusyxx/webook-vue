@@ -10,19 +10,19 @@
 
       <el-descriptions :column="1" border>
         <el-descriptions-item label="邮箱">
-          {{ profile.Email }}
+          {{ profile.email }}
         </el-descriptions-item>
         <el-descriptions-item label="手机">
-          {{ profile.Phone }}
+          {{ profile.phone }}
         </el-descriptions-item>
         <el-descriptions-item label="昵称">
-          {{ profile.Nickname }}
+          {{ profile.nickname }}
         </el-descriptions-item>
         <el-descriptions-item label="生日">
-          {{ profile.Birthday }}
+          {{ profile.birthday }}
         </el-descriptions-item>
         <el-descriptions-item label="关于我">
-          {{ profile.AboutMe }}
+          {{ profile.description }}
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
@@ -34,15 +34,17 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getProfile } from '@/api/user'
+import type { Profile } from '@/api/user'
 
 const router = useRouter()
 const loading = ref(false)
-const profile = ref({
-  Email: '',
-  Phone: '',
-  Nickname: '',
-  Birthday: '',
-  AboutMe: ''
+const profile = ref<Profile>({
+  id: 0,
+  email: '',
+  phone: '',
+  nickname: '',
+  birthday: '',
+  description: ''
 })
 
 // 获取个人信息
@@ -50,7 +52,7 @@ const getProfileData = async () => {
   loading.value = true
   try {
     const res = await getProfile()
-    profile.value = res.data
+    profile.value = res
   } catch (error) {
     ElMessage.error('获取个人信息失败')
   } finally {
