@@ -81,11 +81,7 @@ const handleSubmit = async () => {
       loading.value = true
       try {
         console.log('开始登录，表单数据:', form.value)
-        const res = await login(form.value)
-        console.log('登录响应:', res)
-        userStore.setToken(res.token)
-        console.log('设置后的 token:', userStore.token)
-        userStore.setProfile(res.profile)
+        await login(form.value)  // token 已经在响应拦截器中处理
         ElMessage.success('登录成功')
         const redirect = route.query.redirect as string
         router.push(redirect || '/articles')

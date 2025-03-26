@@ -38,6 +38,16 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => {
     console.log('收到响应:', response.data)
+    
+    // 从响应头中获取 token
+    const jwtToken = response.headers['x-jwt-token']
+    const refreshToken = response.headers['x-refresh-token']
+    if (jwtToken || refreshToken) {
+      const userStore = useUserStore()
+      if (jwtToken) userStore.setToken(jwtToken)
+      if (refreshToken) userStore.setRefreshToken(refreshToken)
+    }
+    
     const { code, message, data } = response.data
     if (code === 0) {
       return data
