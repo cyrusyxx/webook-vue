@@ -55,7 +55,7 @@ const getArticles = async () => {
       offset: 0,
       limit: 100
     })
-    articles.value = res.data
+    articles.value = res  // 直接使用响应数据
   } catch (error) {
     ElMessage.error('获取文章列表失败')
   } finally {
