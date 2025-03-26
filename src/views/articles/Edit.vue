@@ -1,20 +1,14 @@
 <template>
   <div class="article-edit">
-    <h1>创作中心</h1>
-    <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
-      <el-form-item label="标题" prop="title">
-        <el-input v-model="form.title" placeholder="请输入标题" />
-      </el-form-item>
-      
-      <el-form-item label="内容" prop="content">
-        <editor v-model="form.content" />
-      </el-form-item>
+    <div class="header">
+      <h1>{{ id ? '编辑文章' : '写文章' }}</h1>
+      <div class="actions">
+        <el-button @click="handleSave" :loading="saving">保存</el-button>
+        <el-button type="primary" @click="handlePublish" :loading="publishing">发布</el-button>
+      </div>
+    </div>
 
-      <el-form-item>
-        <el-button type="primary" @click="handleSave">保存</el-button>
-        <el-button @click="handlePublish">发表</el-button>
-      </el-form-item>
-    </el-form>
+    <Editor v-model="article" />
   </div>
 </template>
 
@@ -22,30 +16,30 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import type { FormInstance } from 'element-plus'
 import Editor from '@/components/editor/index.vue'
 import { getArticleDetail, editArticle, publishArticle } from '@/api/article'
 
 const route = useRoute()
 const router = useRouter()
-const formRef = ref<FormInstance>()
+const id = ref(route.query.id ? Number(route.query.id) : undefined)
 
-const form = ref({
+const article = ref({
   title: '',
-  content: '',
-  id: undefined as number | undefined
+  content: ''
 })
-
-const rules = {
-  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
-}
+const saving = ref(false)
+const publishing = ref(false)
 
 // 获取文章详情
-const getArticle = async (id: string) => {
+const getDetail = async () => {
+  if (!id.value) return
+  
   try {
-    const res = await getArticleDetail(parseInt(id))
-    form.value = res.data
+    const res = await getArticleDetail(id.value)
+    article.value = {
+      title: res.title,
+      content: res.content
+    }
   } catch (error) {
     ElMessage.error('获取文章详情失败')
   }
@@ -53,56 +47,77 @@ const getArticle = async (id: string) => {
 
 // 保存文章
 const handleSave = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        await editArticle(form.value)
-        ElMessage.success('保存成功')
-        router.push('/articles')
-      } catch (error) {
-        ElMessage.error('保存失败')
-      }
-    }
-  })
+  if (!article.value.title || !article.value.content) {
+    ElMessage.warning('请填写标题和内容')
+    return
+  }
+
+  saving.value = true
+  try {
+    await editArticle({
+      id: id.value,
+      title: article.value.title,
+      content: article.value.content
+    })
+    ElMessage.success('保存成功')
+    router.push('/articles')
+  } catch (error) {
+    ElMessage.error('保存失败')
+  } finally {
+    saving.value = false
+  }
 }
 
-// 发表文章
+// 发布文章
 const handlePublish = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        const res = await publishArticle(form.value)
-        ElMessage.success('发表成功')
-        router.push(`/articles/${res.data}`)
-      } catch (error) {
-        ElMessage.error('发表失败')
-      }
-    }
-  })
+  if (!article.value.title || !article.value.content) {
+    ElMessage.warning('请填写标题和内容')
+    return
+  }
+
+  publishing.value = true
+  try {
+    await publishArticle({
+      id: id.value,
+      title: article.value.title,
+      content: article.value.content
+    })
+    ElMessage.success('发布成功')
+    router.push('/articles')
+  } catch (error) {
+    ElMessage.error('发布失败')
+  } finally {
+    publishing.value = false
+  }
 }
 
 onMounted(() => {
-  const id = route.query.id as string
-  if (id) {
-    getArticle(id)
+  if (id.value) {
+    getDetail()
   }
 })
 </script>
 
 <style scoped>
 .article-edit {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 20px;
 }
 
-h1 {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+h1 {
+  margin: 0;
   font-size: 24px;
   font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
 }
 </style> 
