@@ -47,7 +47,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
-import { login } from '@/api/user'
+import { login, getProfile } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -82,6 +82,9 @@ const handleSubmit = async () => {
       try {
         console.log('开始登录，表单数据:', form.value)
         await login(form.value)  // token 已经在响应拦截器中处理
+        // 获取用户信息
+        const profile = await getProfile()
+        userStore.setProfile(profile)
         ElMessage.success('登录成功')
         const redirect = route.query.redirect as string
         router.push(redirect || '/articles')
