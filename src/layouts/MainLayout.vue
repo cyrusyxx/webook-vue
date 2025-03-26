@@ -11,7 +11,7 @@
         <div class="user-info">
           <el-dropdown @command="handleCommand">
             <span class="user-name">
-              {{ userStore.profile?.Nickname || '未登录' }}
+              {{ userStore.profile?.nickname || '未登录' }}
               <el-icon><ArrowDown /></el-icon>
             </span>
             <template #dropdown>
@@ -32,12 +32,24 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ArrowDown } from '@element-plus/icons-vue'
+import { getProfile } from '@/api/user'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+// 获取用户信息
+const getUserProfile = async () => {
+  try {
+    const res = await getProfile()
+    userStore.setProfile(res)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+}
 
 const handleCommand = (command: string) => {
   switch (command) {
@@ -50,6 +62,12 @@ const handleCommand = (command: string) => {
       break
   }
 }
+
+onMounted(() => {
+  if (userStore.token) {
+    getUserProfile()
+  }
+})
 </script>
 
 <style scoped>
