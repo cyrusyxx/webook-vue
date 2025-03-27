@@ -1,44 +1,60 @@
 <template>
-  <div class="login">
-    <el-card class="login-card">
-      <template #header>
-        <h2>登录</h2>
-      </template>
+  <div class="login-container">
+    <div class="login-form-box">
+      <div class="login-header">
+        <h2 class="animate__animated animate__fadeIn animate__faster">欢迎回来</h2>
+        <p class="animate__animated animate__fadeIn animate__faster animate__delay-02s">登录您的账号以继续</p>
+      </div>
 
       <el-form
         ref="formRef"
         :model="form"
         :rules="rules"
-        label-width="100px"
-        class="login-form"
+        class="login-form animate__animated animate__fadeIn animate__faster animate__delay-03s"
+        @submit.prevent="handleSubmit"
       >
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入邮箱" />
+        <el-form-item prop="email">
+          <el-input
+            v-model="form.email"
+            placeholder="请输入邮箱"
+            :prefix-icon="UserFilled"
+          />
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item prop="password">
           <el-input
             v-model="form.password"
             type="password"
             placeholder="请输入密码"
+            :prefix-icon="Lock"
             show-password
           />
         </el-form-item>
 
-        <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="loading">
-            登录
+        <div class="form-options">
+          <el-checkbox v-model="remember">记住我</el-checkbox>
+          <el-button link type="primary" @click="handleForgotPassword">
+            忘记密码?
           </el-button>
-          <el-button @click="handleRegister">注册</el-button>
-          <el-button link type="primary" @click="handleSMSLogin">
-            短信登录
+        </div>
+
+        <el-button
+          type="primary"
+          class="submit-btn"
+          @click="handleSubmit"
+          :loading="loading"
+        >
+          登录
+        </el-button>
+
+        <div class="register-link">
+          还没有账号？
+          <el-button link type="primary" @click="handleRegister">
+            立即注册
           </el-button>
-          <el-button link type="primary" @click="handleWechatLogin">
-            微信登录
-          </el-button>
-        </el-form-item>
+        </div>
       </el-form>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -47,6 +63,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
+import { UserFilled, Lock } from '@element-plus/icons-vue'
 import { login, getProfile } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 
@@ -55,6 +72,7 @@ const route = useRoute()
 const loading = ref(false)
 const formRef = ref<FormInstance>()
 const userStore = useUserStore()
+const remember = ref(false)
 
 const form = ref({
   email: '',
@@ -80,7 +98,6 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        console.log('开始登录，表单数据:', form.value)
         await login(form.value)  // token 已经在响应拦截器中处理
         // 获取用户信息
         const profile = await getProfile()
@@ -89,9 +106,7 @@ const handleSubmit = async () => {
         const redirect = route.query.redirect as string
         router.push(redirect || '/articles')
       } catch (error: any) {
-        console.error('登录失败:', error)
         if (error.response) {
-          console.error('错误响应:', error.response.data)
           ElMessage.error(error.response.data.message || '登录失败')
         } else {
           ElMessage.error('登录失败，请检查网络连接')
@@ -108,36 +123,133 @@ const handleRegister = () => {
   router.push('/users/register')
 }
 
-// 短信登录
-const handleSMSLogin = () => {
-  router.push('/users/login_sms')
-}
-
-// 微信登录
-const handleWechatLogin = () => {
-  router.push('/users/login_wechat')
+// 忘记密码
+const handleForgotPassword = () => {
+  ElMessage.info('请联系管理员重置密码')
 }
 </script>
 
 <style scoped>
-.login {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 0 20px;
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+.animate__delay-02s {
+  animation-delay: 0.2s;
 }
 
-.login-card {
-  margin-bottom: 20px;
+.animate__delay-03s {
+  animation-delay: 0.3s;
 }
 
-h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+  padding: 20px;
+  background-image: linear-gradient(to right, #8e2de2, #4a00e0);
+}
+
+.login-form-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.login-form-box:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.login-header {
   text-align: center;
+  margin-bottom: 30px;
 }
 
-.login-form {
+.login-header h2 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.login-header p {
+  color: #909399;
+  font-size: 16px;
+}
+
+.login-form :deep(.el-form-item) {
+  margin-bottom: 25px;
+}
+
+.login-form :deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid #dcdfe6;
+  padding: 0 15px;
+  height: 48px;
+  transition: all 0.3s;
+}
+
+.login-form :deep(.el-input__wrapper:hover) {
+  border-color: #409eff;
+}
+
+.login-form :deep(.el-input__wrapper.is-focus) {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+.login-form :deep(.el-input__inner) {
+  height: 48px;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(to right, #3a00b0, #7e1dd2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
+}
+
+.register-link {
+  text-align: center;
+  color: #606266;
+  font-size: 14px;
   margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .login-form-box {
+    padding: 30px 20px;
+  }
+  
+  .login-header h2 {
+    font-size: 24px;
+  }
+  
+  .login-header p {
+    font-size: 14px;
+  }
 }
 </style> 
