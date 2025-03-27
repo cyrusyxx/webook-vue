@@ -145,9 +145,8 @@ const handleForgotPassword = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f7fa;
+  background-color: #749DAD;
   padding: 20px;
-  background-image: linear-gradient(to right, #8e2de2, #4a00e0);
 }
 
 .login-form-box {
@@ -172,13 +171,13 @@ const handleForgotPassword = () => {
 
 .login-header h2 {
   font-size: 28px;
-  color: #333;
+  color: #496E7C;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
 .login-header p {
-  color: #909399;
+  color: #496E7C;
   font-size: 16px;
 }
 
@@ -189,19 +188,19 @@ const handleForgotPassword = () => {
 .login-form :deep(.el-input__wrapper) {
   border-radius: 8px;
   box-shadow: none;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #91B2BE;
   padding: 0 15px;
   height: 48px;
   transition: all 0.3s;
 }
 
 .login-form :deep(.el-input__wrapper:hover) {
-  border-color: #409eff;
+  border-color: #749DAD;
 }
 
 .login-form :deep(.el-input__wrapper.is-focus) {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  border-color: #496E7C;
+  box-shadow: 0 0 0 2px rgba(73, 110, 124, 0.2);
 }
 
 .login-form :deep(.el-input__inner) {
@@ -215,28 +214,40 @@ const handleForgotPassword = () => {
   margin-bottom: 25px;
 }
 
+.form-options :deep(.el-checkbox__label) {
+  color: #496E7C;
+}
+
+.form-options :deep(.el-button) {
+  color: #496E7C;
+}
+
 .submit-btn {
   width: 100%;
   height: 48px;
   font-size: 16px;
   border-radius: 8px;
   margin-bottom: 20px;
-  background: linear-gradient(to right, #4a00e0, #8e2de2);
+  background: #749DAD;
   border: none;
   transition: all 0.3s ease;
 }
 
 .submit-btn:hover {
-  background: linear-gradient(to right, #3a00b0, #7e1dd2);
+  background: #5d8191;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
+  box-shadow: 0 5px 15px rgba(116, 157, 173, 0.4);
 }
 
 .register-link {
   text-align: center;
-  color: #606266;
+  color: #749DAD;
   font-size: 14px;
   margin-top: 20px;
+}
+
+.register-link :deep(.el-button) {
+  color: #496E7C;
 }
 
 @media (max-width: 480px) {
