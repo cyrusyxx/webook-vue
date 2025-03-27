@@ -164,7 +164,6 @@ const showPrivacy = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #749DAD;
   padding: 20px;
 }
 

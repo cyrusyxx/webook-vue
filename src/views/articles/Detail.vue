@@ -1,45 +1,63 @@
 <template>
-  <div class="article-detail" v-loading="loading">
-    <template v-if="article">
-      <div class="header">
-        <h1>{{ article.title }}</h1>
-        <div class="actions">
-          <el-button type="primary" link @click="handleLike">
-            <el-icon><StarOutlined /></el-icon>
-            {{ article.liked ? '已点赞' : '点赞' }}
-            <span class="count">({{ article.likeCnt }})</span>
-          </el-button>
-          <el-button type="primary" link @click="handleCollect">
-            <el-icon><Collection /></el-icon>
-            {{ article.collected ? '已收藏' : '收藏' }}
-            <span class="count">({{ article.collectCnt }})</span>
-          </el-button>
-          <el-button type="primary" link @click="handleReward">
-            <el-icon><MoneyCollectOutlined /></el-icon>
-            打赏
-          </el-button>
+  <div class="article-detail-container">
+    <div class="article-detail-content" v-loading="loading">
+      <template v-if="article">
+        <el-card class="article-card" shadow="hover">
+          <div class="article-header">
+            <h1>{{ article.title }}</h1>
+            <div class="article-meta">
+              <span class="publish-time">发布时间: {{ formatDate(article.ctime) }}</span>
+              <span class="read-count">阅读量: {{ article.readCnt || 0 }}</span>
+            </div>
+            <div class="article-actions">
+              <el-button 
+                :type="article.liked ? 'primary' : 'default'" 
+                class="action-btn" 
+                @click="handleLike"
+              >
+                <el-icon><StarOutlined /></el-icon>
+                {{ article.liked ? '已点赞' : '点赞' }}
+                <span class="count">({{ article.likeCnt }})</span>
+              </el-button>
+              <el-button 
+                :type="article.collected ? 'primary' : 'default'" 
+                class="action-btn" 
+                @click="handleCollect"
+              >
+                <el-icon><Collection /></el-icon>
+                {{ article.collected ? '已收藏' : '收藏' }}
+                <span class="count">({{ article.collectCnt }})</span>
+              </el-button>
+              <el-button type="default" class="action-btn" @click="handleReward">
+                <el-icon><MoneyCollectOutlined /></el-icon>
+                打赏
+              </el-button>
+            </div>
+          </div>
+
+          <el-divider />
+
+          <div class="article-content" v-html="article.content"></div>
+        </el-card>
+      </template>
+      <template v-else>
+        <el-empty description="文章不存在" />
+      </template>
+
+      <!-- 打赏二维码弹窗 -->
+      <el-dialog
+        v-model="showQRCode"
+        title="打赏"
+        width="300px"
+        :close-on-click-modal="false"
+        @close="handleCloseQRCode"
+      >
+        <div class="qrcode-container">
+          <img :src="qrcodeUrl" alt="打赏二维码" />
+          <p class="tip">请使用微信扫码支付</p>
         </div>
-      </div>
-
-      <div class="content" v-html="article.content"></div>
-    </template>
-    <template v-else>
-      <el-empty description="文章不存在" />
-    </template>
-
-    <!-- 打赏二维码弹窗 -->
-    <el-dialog
-      v-model="showQRCode"
-      title="打赏"
-      width="300px"
-      :close-on-click-modal="false"
-      @close="handleCloseQRCode"
-    >
-      <div class="qrcode-container">
-        <img :src="qrcodeUrl" alt="打赏二维码" />
-        <p class="tip">请使用微信扫码支付</p>
-      </div>
-    </el-dialog>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -69,6 +87,13 @@ const getArticle = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 格式化日期
+const formatDate = (timestamp: number) => {
+  if (!timestamp) return '未知时间'
+  const date = new Date(timestamp * 1000)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 // 点赞
@@ -144,40 +169,115 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.article-detail {
-  max-width: 800px;
+.article-detail-container {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.article-detail-content {
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.header {
+.article-card {
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
+}
+
+.article-header {
+  padding-bottom: 20px;
 }
 
 h1 {
   margin: 0 0 20px;
   font-size: 28px;
-  font-weight: bold;
+  font-weight: 600;
+  color: #496E7C;
 }
 
-.actions {
+.article-meta {
   display: flex;
   gap: 20px;
+  color: #91B2BE;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.article-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.action-btn:not(.el-button--primary) {
+  color: #496E7C;
+  border-color: #91B2BE;
+}
+
+.action-btn.el-button--primary {
+  background-color: #749DAD;
+  border-color: #749DAD;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(116, 157, 173, 0.3);
 }
 
 .count {
   margin-left: 4px;
-  color: #666;
+  font-size: 12px;
+  color: inherit;
 }
 
-.content {
+.article-content {
   line-height: 1.8;
   font-size: 16px;
+  color: #333;
+  padding: 20px 0;
 }
 
-.content :deep(img) {
+.article-content :deep(img) {
   max-width: 100%;
   height: auto;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+
+.article-content :deep(h1),
+.article-content :deep(h2),
+.article-content :deep(h3),
+.article-content :deep(h4),
+.article-content :deep(h5),
+.article-content :deep(h6) {
+  color: #496E7C;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.article-content :deep(p) {
+  margin: 15px 0;
+}
+
+.article-content :deep(a) {
+  color: #749DAD;
+  text-decoration: none;
+}
+
+.article-content :deep(a:hover) {
+  text-decoration: underline;
 }
 
 .qrcode-container {
@@ -188,10 +288,35 @@ h1 {
   width: 200px;
   height: 200px;
   margin-bottom: 10px;
+  border-radius: 6px;
 }
 
 .tip {
-  color: #666;
+  color: #496E7C;
   font-size: 14px;
+}
+
+:deep(.el-divider) {
+  margin: 10px 0;
+  border-top: 1px solid #eaedf1;
+}
+
+@media (max-width: 768px) {
+  .article-detail-content {
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  .article-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
 }
 </style> 
