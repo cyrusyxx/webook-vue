@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true }
       },
       {
-        path: 'edit',
+        path: 'edit/:id?',
         name: 'ArticleEdit',
         component: () => import('../views/articles/Edit.vue'),
         meta: { requiresAuth: true }

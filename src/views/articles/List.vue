@@ -18,7 +18,7 @@
         >
           <el-table-column prop="title" label="标题" min-width="200">
             <template #default="{ row }">
-              <el-link type="primary" @click="handleView(row)">{{ row.title }}</el-link>
+              <span class="article-title">{{ row.title }}</span>
             </template>
           </el-table-column>
           
@@ -32,15 +32,11 @@
             </template>
           </el-table-column>
           
-          <el-table-column label="操作" width="140" fixed="right">
+          <el-table-column label="操作" width="100" fixed="right">
             <template #default="{ row }">
               <el-button type="primary" link @click="handleEdit(row)">
                 <el-icon class="el-icon--left"><Edit /></el-icon>
                 编辑
-              </el-button>
-              <el-button type="primary" link @click="handleView(row)">
-                <el-icon class="el-icon--left"><View /></el-icon>
-                查看
               </el-button>
             </template>
           </el-table-column>
@@ -54,7 +50,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Plus, Edit, View } from '@element-plus/icons-vue'
+import { Plus, Edit } from '@element-plus/icons-vue'
 import { getArticleList } from '@/api/article'
 
 const router = useRouter()
@@ -112,12 +108,12 @@ const handleCreate = () => {
 
 // 编辑文章
 const handleEdit = (row: any) => {
-  router.push(`/articles/edit?id=${row.id}`)
+  router.push(`/articles/edit/${row.id}`)
 }
 
-// 查看文章
-const handleView = (row: any) => {
-  router.push(`/articles/${row.id}`)
+// 刷新列表
+const refreshList = () => {
+  getArticles()
 }
 
 onMounted(() => {
@@ -194,5 +190,10 @@ h1 {
 
 :deep(.el-button--primary:hover) {
   color: #749DAD;
+}
+
+.article-title {
+  color: #496E7C;
+  font-weight: 500;
 }
 </style> 

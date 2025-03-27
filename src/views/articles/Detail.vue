@@ -15,7 +15,7 @@
                 class="action-btn" 
                 @click="handleLike"
               >
-                <el-icon><StarOutlined /></el-icon>
+                <el-icon><Star /></el-icon>
                 {{ article.liked ? '已点赞' : '点赞' }}
                 <span class="count">({{ article.likeCnt }})</span>
               </el-button>
@@ -29,7 +29,7 @@
                 <span class="count">({{ article.collectCnt }})</span>
               </el-button>
               <el-button type="default" class="action-btn" @click="handleReward">
-                <el-icon><MoneyCollectOutlined /></el-icon>
+                <el-icon><Money /></el-icon>
                 打赏
               </el-button>
             </div>
@@ -65,7 +65,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { StarOutlined, Collection, MoneyCollectOutlined } from '@element-plus/icons-vue'
+import { Star, Collection, Money } from '@element-plus/icons-vue'
 import { getPubArticleDetail, likeArticle, collectArticle } from '@/api/article'
 import { request } from '@/utils/request'
 
@@ -80,10 +80,20 @@ let rewardId = 0
 const getArticle = async () => {
   loading.value = true
   try {
-    const res = await getPubArticleDetail(parseInt(route.params.id as string))
+    const articleId = parseInt(route.params.id as string)
+    if (isNaN(articleId)) {
+      ElMessage.error('无效的文章ID')
+      return
+    }
+    console.log('正在获取文章详情, ID:', articleId)
+    const res = await getPubArticleDetail(articleId)
     article.value = res.data
-  } catch (error) {
-    ElMessage.error('获取文章详情失败')
+    if (!article.value) {
+      ElMessage.error('文章不存在或已被删除')
+    }
+  } catch (error: any) {
+    console.error('获取文章详情失败:', error)
+    ElMessage.error(error.response?.data?.message || '获取文章详情失败')
   } finally {
     loading.value = false
   }

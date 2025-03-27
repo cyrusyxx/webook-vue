@@ -21,7 +21,7 @@ import { getArticleDetail, editArticle, publishArticle } from '@/api/article'
 
 const route = useRoute()
 const router = useRouter()
-const id = ref(route.query.id ? Number(route.query.id) : undefined)
+const id = ref(route.params.id ? Number(route.params.id) : undefined)
 
 const article = ref({
   title: '',
@@ -34,6 +34,8 @@ const publishing = ref(false)
 const getDetail = async () => {
   if (!id.value) return
   
+  console.log('获取文章详情，ID:', id.value, typeof id.value)
+  
   try {
     const res = await getArticleDetail(id.value)
     article.value = {
@@ -41,6 +43,7 @@ const getDetail = async () => {
       content: res.content
     }
   } catch (error) {
+    console.error('获取文章详情失败:', error)
     ElMessage.error('获取文章详情失败')
   }
 }
@@ -92,6 +95,7 @@ const handlePublish = async () => {
 }
 
 onMounted(() => {
+  console.log('路由参数:', route.params, route.query, route.path)
   if (id.value) {
     getDetail()
   }
