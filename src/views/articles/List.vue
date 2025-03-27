@@ -128,7 +128,8 @@ onMounted(() => {
 }
 
 .article-list-content {
-  max-width: 1200px;
+  width: 101%;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
 }
