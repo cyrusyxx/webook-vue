@@ -22,7 +22,7 @@
           
           <el-table-column prop="abstract" label="摘要" min-width="300" show-overflow-tooltip />
           
-          <el-table-column prop="authorName" label="作者" width="120" />
+          <el-table-column prop="author_name" label="作者" width="120" />
           
           <el-table-column label="互动" width="200">
             <template #default="{ row }">
