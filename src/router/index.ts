@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { getProfile, refreshToken } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 console.log('路由模块初始化')
 
@@ -97,20 +99,58 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   console.log('路由跳转:', { from: from.path, to: to.path })
   try {
     const userStore = useUserStore()
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
-    if (requiresAuth && !userStore.token) {
-      console.log('需要登录权限，重定向到登录页')
-      next({
-        path: '/users/login',
-        query: { redirect: to.fullPath }
-      })
+    // 如果路由需要认证
+    if (requiresAuth) {
+      // 检查是否有token
+      if (!userStore.token) {
+        console.log('需要登录权限，重定向到登录页')
+        next({
+          path: '/users/login',
+          query: { redirect: to.fullPath }
+        })
+      } else {
+        // 尝试验证token有效性
+        try {
+          await getProfile()
+          next() // token有效，继续导航
+        } catch (error: any) {
+          console.error('Token验证失败:', error)
+          
+          // 如果是401错误且有refreshToken，尝试刷新token
+          if (error.response?.status === 401 && userStore.refreshToken) {
+            try {
+              console.log('路由守卫尝试刷新token')
+              await refreshToken()
+              // 刷新token成功，继续导航
+              next()
+            } catch (refreshError) {
+              console.error('刷新token失败，需要重新登录:', refreshError)
+              userStore.logout()
+              ElMessage.error('登录已过期，请重新登录')
+              next({
+                path: '/users/login',
+                query: { redirect: to.fullPath }
+              })
+            }
+          } else {
+            // token无效且无法刷新，清除状态并跳转登录页
+            userStore.logout()
+            ElMessage.error('登录已过期，请重新登录')
+            next({
+              path: '/users/login',
+              query: { redirect: to.fullPath }
+            })
+          }
+        }
+      }
     } else {
-      next()
+      next() // 不需要认证的路由直接放行
     }
   } catch (error) {
     console.error('路由守卫发生错误:', error)

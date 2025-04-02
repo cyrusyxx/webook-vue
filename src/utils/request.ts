@@ -62,7 +62,7 @@ request.interceptors.response.use(
         case 401:
           const userStore = useUserStore()
           userStore.logout()
-          window.location.href = '/login'
+          window.location.href = '/users/login'
           break
         case 403:
           ElMessage.error('没有权限访问')

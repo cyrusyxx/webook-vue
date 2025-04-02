@@ -59,12 +59,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { UserFilled, Lock } from '@element-plus/icons-vue'
-import { login, getProfile } from '@/api/user'
+import { login, getProfile, refreshToken } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -127,6 +127,50 @@ const handleRegister = () => {
 const handleForgotPassword = () => {
   ElMessage.info('请联系管理员重置密码')
 }
+
+// 验证token并自动跳转
+const validateToken = async () => {
+  // 如果有token，尝试验证它是否有效
+  if (userStore.token) {
+    loading.value = true
+    try {
+      // 尝试获取用户信息，如果成功，说明token有效
+      const profile = await getProfile()
+      userStore.setProfile(profile)
+      ElMessage.success('已自动登录')
+      const redirect = route.query.redirect as string
+      router.push(redirect || '/articles')
+    } catch (error: any) {
+      console.error('Token验证失败:', error)
+      
+      // 如果是401错误且有refreshToken，尝试刷新token
+      if (error.response?.status === 401 && userStore.refreshToken) {
+        try {
+          console.log('尝试刷新token')
+          await refreshToken()
+          // 刷新成功后重新获取用户信息
+          const profile = await getProfile()
+          userStore.setProfile(profile)
+          ElMessage.success('已自动登录')
+          const redirect = route.query.redirect as string
+          router.push(redirect || '/articles')
+        } catch (refreshError) {
+          console.error('刷新token失败，需要重新登录:', refreshError)
+          userStore.logout()
+        }
+      } else {
+        // Token无效，清除状态
+        userStore.logout()
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+}
+
+onMounted(() => {
+  validateToken()
+})
 </script>
 
 <style scoped>
