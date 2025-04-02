@@ -6,7 +6,8 @@
           <router-link to="/">WeBook</router-link>
         </div>
         <div class="nav">
-          <router-link to="/articles">文章</router-link>
+          <router-link to="/">主页</router-link>
+          <router-link to="/articles">我的文章</router-link>
         </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand">
@@ -100,7 +101,18 @@ onMounted(() => {
 .nav a {
   color: #606266;
   text-decoration: none;
-  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.nav a:last-child {
+  margin-right: 0;
+}
+
+.nav a.router-link-active {
+  color: #409eff;
+  font-weight: 500;
 }
 
 .nav a:hover {

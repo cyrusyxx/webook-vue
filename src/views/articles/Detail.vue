@@ -28,10 +28,6 @@
                 {{ article.collected ? '已收藏' : '收藏' }}
                 <span class="count">({{ article.collectCnt }})</span>
               </el-button>
-              <el-button type="default" class="action-btn" @click="handleReward">
-                <el-icon><Money /></el-icon>
-                打赏
-              </el-button>
             </div>
           </div>
 
@@ -43,20 +39,6 @@
       <template v-else>
         <el-empty description="文章不存在" />
       </template>
-
-      <!-- 打赏二维码弹窗 -->
-      <el-dialog
-        v-model="showQRCode"
-        title="打赏"
-        width="300px"
-        :close-on-click-modal="false"
-        @close="handleCloseQRCode"
-      >
-        <div class="qrcode-container">
-          <img :src="qrcodeUrl" alt="打赏二维码" />
-          <p class="tip">请使用微信扫码支付</p>
-        </div>
-      </el-dialog>
     </div>
   </div>
 </template>
@@ -65,16 +47,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Star, Collection, Money } from '@element-plus/icons-vue'
+import { Star, Collection } from '@element-plus/icons-vue'
 import { getPubArticleDetail, likeArticle, collectArticle } from '@/api/article'
-import { request } from '@/utils/request'
 
 const route = useRoute()
 const loading = ref(false)
 const article = ref<any>(null)
-const showQRCode = ref(false)
-const qrcodeUrl = ref('')
-let rewardId = 0
 
 // 获取文章详情
 const getArticle = async () => {
@@ -87,7 +65,7 @@ const getArticle = async () => {
     }
     console.log('正在获取文章详情, ID:', articleId)
     const res = await getPubArticleDetail(articleId)
-    article.value = res.data
+    article.value = res
     if (!article.value) {
       ElMessage.error('文章不存在或已被删除')
     }
@@ -133,43 +111,6 @@ const handleCollect = async () => {
     article.value.collected = true
   } catch (error) {
     ElMessage.error('收藏失败')
-  }
-}
-
-// 打赏
-const handleReward = async () => {
-  if (!article.value) return
-  
-  try {
-    const res = await request.post('/articles/pub/reward', {
-      id: article.value.id,
-      amt: 1
-    })
-    if (res.data.code === 0) {
-      qrcodeUrl.value = res.data.data.codeURL
-      rewardId = res.data.data.rid
-      showQRCode.value = true
-    } else {
-      ElMessage.error(res.data.msg || '打赏失败')
-    }
-  } catch (error) {
-    ElMessage.error('打赏失败')
-  }
-}
-
-// 关闭打赏弹窗
-const handleCloseQRCode = async () => {
-  if (rewardId > 0) {
-    try {
-      const res = await request.post('/reward/detail', {
-        rid: rewardId
-      })
-      if (res.data.code === 0 && res.data.data === 'RewardStatusPayed') {
-        ElMessage.success('打赏成功')
-      }
-    } catch (error) {
-      console.error('检查打赏状态失败', error)
-    }
   }
 }
 
@@ -288,22 +229,6 @@ h1 {
 
 .article-content :deep(a:hover) {
   text-decoration: underline;
-}
-
-.qrcode-container {
-  text-align: center;
-}
-
-.qrcode-container img {
-  width: 200px;
-  height: 200px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-}
-
-.tip {
-  color: #496E7C;
-  font-size: 14px;
 }
 
 :deep(.el-divider) {
