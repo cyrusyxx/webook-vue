@@ -8,23 +8,24 @@
         </div>
       </template>
 
-      <el-descriptions :column="1" border>
+      <el-descriptions :column="1" border v-if="profile">
         <el-descriptions-item label="邮箱">
-          {{ profile.email }}
+          {{ profile.email || '未设置' }}
         </el-descriptions-item>
         <el-descriptions-item label="手机">
-          {{ profile.phone }}
+          {{ profile.phone || '未设置' }}
         </el-descriptions-item>
         <el-descriptions-item label="昵称">
-          {{ profile.nickname }}
+          {{ profile.nickname || '未设置' }}
         </el-descriptions-item>
         <el-descriptions-item label="生日">
-          {{ profile.birthday }}
+          {{ profile.birthday || '未设置' }}
         </el-descriptions-item>
         <el-descriptions-item label="关于我">
-          {{ profile.description }}
+          {{ profile.description || '未设置' }}
         </el-descriptions-item>
       </el-descriptions>
+      <el-empty v-else description="加载失败" />
     </el-card>
   </div>
 </template>
@@ -38,22 +39,20 @@ import type { Profile } from '@/api/user'
 
 const router = useRouter()
 const loading = ref(false)
-const profile = ref<Profile>({
-  id: 0,
-  email: '',
-  phone: '',
-  nickname: '',
-  birthday: '',
-  description: ''
-})
+const profile = ref<Profile | null>(null)
 
 // 获取个人信息
 const getProfileData = async () => {
   loading.value = true
   try {
     const res = await getProfile()
-    profile.value = res
+    if (res) {
+      profile.value = res
+    } else {
+      ElMessage.error('获取个人信息失败')
+    }
   } catch (error) {
+    console.error('获取个人信息失败:', error)
     ElMessage.error('获取个人信息失败')
   } finally {
     loading.value = false

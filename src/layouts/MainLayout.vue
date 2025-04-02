@@ -46,7 +46,9 @@ const userStore = useUserStore()
 const getUserProfile = async () => {
   try {
     const res = await getProfile()
-    userStore.setProfile(res)
+    if (res && res.data) {
+      userStore.setProfile(res.data)
+    }
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }

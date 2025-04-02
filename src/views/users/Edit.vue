@@ -25,9 +25,9 @@
           />
         </el-form-item>
 
-        <el-form-item label="关于我" prop="aboutMe">
+        <el-form-item label="关于我" prop="description">
           <el-input
-            v-model="form.aboutMe"
+            v-model="form.description"
             type="textarea"
             :rows="4"
             placeholder="介绍一下你自己"
@@ -57,7 +57,7 @@ const formRef = ref<FormInstance>()
 const form = ref({
   nickname: '',
   birthday: '',
-  aboutMe: ''
+  description: ''
 })
 
 const rules = {
@@ -68,7 +68,7 @@ const rules = {
   birthday: [
     { required: true, message: '请选择生日', trigger: 'change' }
   ],
-  aboutMe: [
+  description: [
     { max: 500, message: '不能超过 500 个字符', trigger: 'blur' }
   ]
 }
@@ -78,12 +78,17 @@ const getProfileData = async () => {
   loading.value = true
   try {
     const res = await getProfile()
-    form.value = {
-      nickname: res.nickname,
-      birthday: res.birthday,
-      aboutMe: res.description
+    if (res) {
+      form.value = {
+        nickname: res.nickname || '',
+        birthday: res.birthday || '',
+        description: res.description || ''
+      }
+    } else {
+      ElMessage.error('获取个人信息失败')
     }
   } catch (error) {
+    console.error('获取个人信息失败:', error)
     ElMessage.error('获取个人信息失败')
   } finally {
     loading.value = false
@@ -97,11 +102,7 @@ const handleSubmit = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await editProfile({
-          nickname: form.value.nickname,
-          birthday: form.value.birthday,
-          description: form.value.aboutMe
-        })
+        await editProfile(form.value)
         ElMessage.success('保存成功')
         router.push('/users/profile')
       } catch (error) {
