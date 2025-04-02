@@ -2,10 +2,20 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
+console.log('路由模块初始化')
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/users/login'
+    component: () => import('../layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: () => import('../views/home/Home.vue'),
+        meta: { requiresAuth: false }
+      }
+    ]
   },
   {
     path: '/users',
@@ -88,17 +98,31 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  console.log('路由跳转:', { from: from.path, to: to.path })
+  try {
+    const userStore = useUserStore()
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
 
-  if (requiresAuth && !userStore.token) {
-    next({
-      path: '/users/login',
-      query: { redirect: to.fullPath }
-    })
-  } else {
-    next()
+    if (requiresAuth && !userStore.token) {
+      console.log('需要登录权限，重定向到登录页')
+      next({
+        path: '/users/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } catch (error) {
+    console.error('路由守卫发生错误:', error)
+    next() // 即使发生错误也尝试导航
   }
 })
+
+// 导航错误处理
+router.onError((error) => {
+  console.error('路由错误:', error)
+})
+
+console.log('路由模块加载完成')
 
 export default router 

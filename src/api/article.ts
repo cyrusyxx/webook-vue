@@ -61,4 +61,9 @@ export const likeArticle = (id: number, like: boolean) => {
 // 收藏文章
 export const collectArticle = (id: number, cid: number) => {
   return request.post('/article/pub/collect', { id, cid })
+}
+
+// 获取公共文章列表
+export const getPubArticleList = (params: ArticleListParams) => {
+  return request.post('/article/pub/list', params)
 } 

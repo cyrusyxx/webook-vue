@@ -1,13 +1,67 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
+    <script type="module" src="/@vite/client"></script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WeBook</title>
+    <style>
+      #loading {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-size: 20px;
+        color: #666;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .app-loaded #loading {
+        display: none;
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="loading">
+        <div class="spinner"></div>
+        <p>正在加载 WeBook 应用...</p>
+        <p style="font-size: 14px; color: #999;">如果长时间未加载，请检查网络连接或代理设置</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      console.log('页面初始化于:', new Date().toLocaleTimeString());
+      
+      // 检测应用加载状态
+      window.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM内容加载完成于:', new Date().toLocaleTimeString());
+      });
+      
+      window.addEventListener('load', () => {
+        console.log('页面完全加载于:', new Date().toLocaleTimeString());
+      });
+      
+      // 5秒后检查应用是否加载
+      setTimeout(() => {
+        if (document.getElementById('loading')) {
+          console.log('应用可能加载失败，仍显示加载指示器');
+        }
+      }, 5000);
+    </script>
   </body>
 </html>
