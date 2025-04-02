@@ -39,7 +39,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Document, Position } from '@element-plus/icons-vue'
 import Editor from '@/components/editor/index.vue'
-import { getArticleDetail, editArticle, publishArticle } from '@/api/article'
+import { getArticleDetail, editArticle, publishArticle, type EditArticleParams } from '@/api/article'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,14 +79,22 @@ const handleSave = async () => {
 
   saving.value = true
   try {
-    await editArticle({
-      id: id.value,
+    // 创建请求参数对象，仅在id有值时才包含id字段
+    const params: EditArticleParams = {
       title: article.value.title,
       content: article.value.content
-    })
+    }
+    
+    // 仅当id存在且不为undefined时添加id字段
+    if (id.value !== undefined) {
+      params.id = id.value
+    }
+    
+    await editArticle(params)
     ElMessage.success('保存成功')
     router.push('/articles')
   } catch (error) {
+    console.error('保存失败:', error)
     ElMessage.error('保存失败')
   } finally {
     saving.value = false
@@ -102,14 +110,22 @@ const handlePublish = async () => {
 
   publishing.value = true
   try {
-    await publishArticle({
-      id: id.value,
+    // 创建请求参数对象，仅在id有值时才包含id字段
+    const params: EditArticleParams = {
       title: article.value.title,
       content: article.value.content
-    })
+    }
+    
+    // 仅当id存在且不为undefined时添加id字段
+    if (id.value !== undefined) {
+      params.id = id.value
+    }
+    
+    await publishArticle(params)
     ElMessage.success('发布成功')
     router.push('/articles')
   } catch (error) {
+    console.error('发布失败:', error)
     ElMessage.error('发布失败')
   } finally {
     publishing.value = false

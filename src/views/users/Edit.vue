@@ -78,11 +78,10 @@ const getProfileData = async () => {
   loading.value = true
   try {
     const res = await getProfile()
-    const data = res.data
     form.value = {
-      nickname: data.Nickname,
-      birthday: data.Birthday,
-      aboutMe: data.AboutMe
+      nickname: res.nickname,
+      birthday: res.birthday,
+      aboutMe: res.description
     }
   } catch (error) {
     ElMessage.error('获取个人信息失败')
@@ -98,7 +97,11 @@ const handleSubmit = async () => {
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await editProfile(form.value)
+        await editProfile({
+          nickname: form.value.nickname,
+          birthday: form.value.birthday,
+          description: form.value.aboutMe
+        })
         ElMessage.success('保存成功')
         router.push('/users/profile')
       } catch (error) {
