@@ -6,9 +6,9 @@
           <router-link to="/">WeBook</router-link>
         </div>
         <div class="nav">
-          <router-link to="/">主页</router-link>
-          <router-link to="/articles">我的文章</router-link>
-          <router-link to="/articles/top">热榜</router-link>
+          <router-link to="/" exact-active-class="active">主页</router-link>
+          <router-link to="/articles" exact-active-class="active">我的文章</router-link>
+          <router-link to="/articles/top" exact-active-class="active">热榜</router-link>
         </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand">
@@ -101,24 +101,23 @@ onMounted(() => {
   text-decoration: none;
 }
 
+.nav {
+  display: flex;
+  gap: 20px;
+}
+
 .nav a {
-  color: #606266;
+  color: #496E7C;
   text-decoration: none;
-  margin-right: 20px;
-  font-size: 16px;
-  transition: color 0.3s;
-}
-
-.nav a:last-child {
-  margin-right: 0;
-}
-
-.nav a.router-link-active {
-  color: #409eff;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .nav a:hover {
+  color: #409eff;
+}
+
+.nav a.active {
   color: #409eff;
 }
 
