@@ -12,7 +12,8 @@ export interface Article {
   collected?: boolean
   collect_cnt?: number
   view_cnt?: number
-  ctime?: number
+  ctime?: string
+  utime?: string
 }
 
 export interface ArticleListParams {

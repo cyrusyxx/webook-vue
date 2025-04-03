@@ -6,7 +6,7 @@
           <div class="article-header">
             <h1>{{ article.title }}</h1>
             <div class="article-meta">
-              <span class="publish-time">发布时间: {{ formatDate(article.ctime) }}</span>
+              <span class="publish-time">发布时间: {{ formatDate(article.utime) }}</span>
               <span class="read-count">阅读量: {{ article.view_cnt || 0 }}</span>
             </div>
             <div class="article-actions">
@@ -78,8 +78,15 @@ const getArticle = async () => {
 }
 
 // 格式化日期
-const formatDate = (timestamp: number) => {
+const formatDate = (timestamp: string | number) => {
   if (!timestamp) return '未知时间'
+  
+  // 如果是字符串，直接返回
+  if (typeof timestamp === 'string') {
+    return timestamp
+  }
+  
+  // 如果是数字，转换为日期格式
   const date = new Date(timestamp * 1000)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
