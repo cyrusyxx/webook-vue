@@ -32,6 +32,22 @@
             </template>
           </el-table-column>
           
+          <el-table-column label="互动" width="200">
+            <template #default="{ row }">
+              <div class="interaction-info">
+                <span class="interaction-item">
+                  <el-icon><View /></el-icon> {{ row.viewCnt || 0 }}
+                </span>
+                <span class="interaction-item">
+                  <el-icon><Pointer /></el-icon> {{ row.likeCnt || 0 }}
+                </span>
+                <span class="interaction-item">
+                  <el-icon><Star /></el-icon> {{ row.collectCnt || 0 }}
+                </span>
+              </div>
+            </template>
+          </el-table-column>
+          
           <el-table-column label="操作" width="100" fixed="right">
             <template #default="{ row }">
               <el-button type="primary" link @click="handleEdit(row)">
@@ -50,7 +66,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Plus, Edit } from '@element-plus/icons-vue'
+import { Plus, Edit, View, Star, Pointer } from '@element-plus/icons-vue'
 import { getArticleList, type Article } from '@/api/article'
 
 const router = useRouter()
@@ -198,5 +214,21 @@ h1 {
 .article-title {
   color: #496E7C;
   font-weight: 500;
+}
+
+.interaction-info {
+  display: flex;
+  align-items: center;
+}
+
+.interaction-item {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+  color: #909399;
+}
+
+.interaction-item .el-icon {
+  margin-right: 4px;
 }
 </style> 
