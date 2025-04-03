@@ -7,8 +7,8 @@
         </div>
         <div class="nav">
           <router-link to="/" exact-active-class="active">主页</router-link>
-          <router-link to="/articles" exact-active-class="active">我的文章</router-link>
           <router-link to="/articles/top" exact-active-class="active">热榜</router-link>
+          <router-link to="/articles" exact-active-class="active">我的文章</router-link>
         </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand">
