@@ -7,7 +7,7 @@
             <h1>{{ article.title }}</h1>
             <div class="article-meta">
               <span class="publish-time">发布时间: {{ formatDate(article.ctime) }}</span>
-              <span class="read-count">阅读量: {{ article.readCnt || 0 }}</span>
+              <span class="read-count">阅读量: {{ article.view_cnt || 0 }}</span>
             </div>
             <div class="article-actions">
               <el-button 
@@ -17,7 +17,7 @@
               >
                 <el-icon><Star /></el-icon>
                 {{ article.liked ? '已点赞' : '点赞' }}
-                <span class="count">({{ article.likeCnt }})</span>
+                <span class="count">{{ article.like_cnt || 0 }}</span>
               </el-button>
               <el-button 
                 :type="article.collected ? 'primary' : 'default'" 
@@ -26,7 +26,7 @@
               >
                 <el-icon><Collection /></el-icon>
                 {{ article.collected ? '已收藏' : '收藏' }}
-                <span class="count">({{ article.collectCnt }})</span>
+                <span class="count">{{ article.collect_cnt || 0 }}</span>
               </el-button>
             </div>
           </div>
@@ -91,11 +91,12 @@ const handleLike = async () => {
   try {
     await likeArticle(article.value.id, !article.value.liked)
     if (article.value.liked) {
-      article.value.likeCnt--
+      article.value.like_cnt = (article.value.like_cnt || 1) - 1
     } else {
-      article.value.likeCnt++
+      article.value.like_cnt = (article.value.like_cnt || 0) + 1
     }
     article.value.liked = !article.value.liked
+    ElMessage.success(article.value.liked ? '点赞成功' : '取消点赞成功')
   } catch (error) {
     ElMessage.error('操作失败')
   }
@@ -103,14 +104,24 @@ const handleLike = async () => {
 
 // 收藏
 const handleCollect = async () => {
-  if (!article.value || article.value.collected) return
+  if (!article.value) return
   
   try {
-    await collectArticle(article.value.id, 0)
-    article.value.collectCnt++
-    article.value.collected = true
+    // 如果已经收藏，则取消收藏
+    if (article.value.collected) {
+      await collectArticle(article.value.id, 0, false) // 使用collect=false表示取消收藏
+      article.value.collect_cnt = (article.value.collect_cnt || 1) - 1
+      article.value.collected = false
+      ElMessage.success('取消收藏成功')
+    } else {
+      // 否则添加收藏
+      await collectArticle(article.value.id, 0, true) // 使用collect=true表示添加收藏
+      article.value.collect_cnt = (article.value.collect_cnt || 0) + 1
+      article.value.collected = true
+      ElMessage.success('收藏成功')
+    }
   } catch (error) {
-    ElMessage.error('收藏失败')
+    ElMessage.error('操作失败')
   }
 }
 

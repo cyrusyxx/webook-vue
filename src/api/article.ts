@@ -6,10 +6,13 @@ export interface Article {
   content: string
   status?: number
   abstract?: string
+  author_name?: string
   liked?: boolean
-  likeCnt?: number
+  like_cnt?: number
   collected?: boolean
-  collectCnt?: number
+  collect_cnt?: number
+  view_cnt?: number
+  ctime?: number
 }
 
 export interface ArticleListParams {
@@ -59,8 +62,8 @@ export const likeArticle = (id: number, like: boolean) => {
 }
 
 // 收藏文章
-export const collectArticle = (id: number, cid: number) => {
-  return request.post('/article/pub/collect', { id, cid })
+export const collectArticle = (id: number, cid: number, collect: boolean) => {
+  return request.post('/article/pub/collect', { id, cid, collect })
 }
 
 // 获取公共文章列表
