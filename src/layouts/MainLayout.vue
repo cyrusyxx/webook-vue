@@ -8,6 +8,7 @@
         <div class="nav">
           <router-link to="/">主页</router-link>
           <router-link to="/articles">我的文章</router-link>
+          <router-link to="/articles/top">热榜</router-link>
         </div>
         <div class="user-info">
           <el-dropdown @command="handleCommand">

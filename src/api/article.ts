@@ -66,4 +66,9 @@ export const collectArticle = (id: number, cid: number) => {
 // 获取公共文章列表
 export const getPubArticleList = (params: ArticleListParams) => {
   return request.post('/article/pub/list', params)
+}
+
+// 获取热榜文章
+export const getTopArticles = () => {
+  return request.get('/article/pub/top')
 } 
