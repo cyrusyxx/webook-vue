@@ -28,13 +28,13 @@
             <template #default="{ row }">
               <div class="interaction-info">
                 <span class="interaction-item">
-                  <el-icon><View /></el-icon> {{ row.viewCnt || 0 }}
+                  <el-icon><View /></el-icon> {{ row.view_cnt || 0 }}
                 </span>
                 <span class="interaction-item">
-                  <el-icon><Pointer /></el-icon> {{ row.likeCnt || 0 }}
+                  <el-icon><Pointer /></el-icon> {{ row.like_cnt || 0 }}
                 </span>
                 <span class="interaction-item">
-                  <el-icon><Star /></el-icon> {{ row.collectCnt || 0 }}
+                  <el-icon><Star /></el-icon> {{ row.collect_cnt || 0 }}
                 </span>
               </div>
             </template>
