@@ -11,7 +11,7 @@
           <router-link to="/articles" exact-active-class="active">我的文章</router-link>
         </div>
         <div class="user-info">
-          <el-dropdown @command="handleCommand">
+          <el-dropdown @command="handleCommand" trigger="click">
             <span class="user-name">
               {{ userStore.profile?.nickname || '未登录' }}
               <el-icon><ArrowDown /></el-icon>
@@ -130,6 +130,26 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   color: #606266;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.user-name:hover {
+  background-color: transparent;
+}
+
+:deep(.el-dropdown-menu) {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.el-dropdown-menu__item) {
+  padding: 8px 16px;
+}
+
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #f5f7fa;
 }
 
 .el-main {
