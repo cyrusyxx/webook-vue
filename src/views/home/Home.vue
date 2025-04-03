@@ -31,10 +31,10 @@
                   <el-icon><View /></el-icon> {{ row.viewCnt || 0 }}
                 </span>
                 <span class="interaction-item">
-                  <el-icon><Star /></el-icon> {{ row.collectCnt || 0 }}
+                  <el-icon><Pointer /></el-icon> {{ row.likeCnt || 0 }}
                 </span>
                 <span class="interaction-item">
-                  <el-icon><ChatRound /></el-icon> {{ row.likeCnt || 0 }}
+                  <el-icon><Star /></el-icon> {{ row.collectCnt || 0 }}
                 </span>
               </div>
             </template>
@@ -63,12 +63,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { View, Star, ChatRound } from '@element-plus/icons-vue'
+import { View, Star, Pointer } from '@element-plus/icons-vue'
 import { getPubArticleList, type Article } from '@/api/article'
 
 // 打印调试信息
 console.log('Home 组件初始化')
-console.log('可用图标:', Object.keys({ View, Star, ChatRound }))
+console.log('可用图标:', Object.keys({ View, Star, Pointer }))
 
 const router = useRouter()
 const loading = ref(false)
