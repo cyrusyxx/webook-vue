@@ -406,6 +406,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
 }
 
 .comment-header h2 {
@@ -420,7 +421,7 @@ h1 {
 }
 
 .comment-form {
-  margin-bottom: 30px;
+  margin: 20px;
 }
 
 .comment-form-actions {
@@ -430,7 +431,7 @@ h1 {
 }
 
 .comment-list {
-  margin-top: 20px;
+  margin: 0 20px;
 }
 
 .comment-item {
@@ -449,7 +450,7 @@ h1 {
 }
 
 .comment-user-info {
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .comment-username {
