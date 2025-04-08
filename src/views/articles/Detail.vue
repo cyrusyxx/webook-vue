@@ -66,11 +66,8 @@
           <div class="comment-list">
             <div v-for="comment in comments" :key="comment.id" class="comment-item">
               <div class="comment-user">
-                <el-avatar :size="40" :src="comment.user.avatar || ''">
-                  {{ comment.user.nickname?.charAt(0) || 'U' }}
-                </el-avatar>
                 <div class="comment-user-info">
-                  <span class="comment-username">{{ comment.user.nickname || '匿名用户' }}</span>
+                  <span class="comment-username">{{ comment.user.nick_name || '匿名用户' }}</span>
                   <span class="comment-time">{{ formatDate(comment.ctime) }}</span>
                 </div>
               </div>
@@ -99,7 +96,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Star, Collection } from '@element-plus/icons-vue'
 import { getPubArticleDetail, likeArticle, collectArticle } from '@/api/article'
 import { useUserStore } from '@/stores/user'
@@ -225,10 +222,7 @@ const submitComment = async () => {
   try {
     const articleId = parseInt(route.params.id as string)
     if (isNaN(articleId)) return
-    await addComment({
-      article_id: articleId,
-      content: commentContent.value
-    })
+    await addComment(articleId, commentContent.value)
     commentContent.value = ''
     ElMessage.success('评论成功')
     getCommentList()
@@ -248,7 +242,9 @@ const deleteComment = async (commentId: number) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await deleteCommentApi(commentId)
+    const articleId = parseInt(route.params.id as string)
+    if (isNaN(articleId)) return
+    await deleteCommentApi(articleId, commentId)
     ElMessage.success('删除成功')
     getCommentList()
   } catch (error) {

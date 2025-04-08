@@ -6,15 +6,20 @@ export interface Comment {
   article_id: number
   user: {
     id: number
-    nickname: string
-    avatar?: string
+    email: string
+    password: string
+    phone: string
+    nick_name: string
+    birthday: string
+    description: string
+    union_id: string
+    open_id: string
   }
   ctime: string
   utime: string
 }
 
 export interface AddCommentParams {
-  article_id: number
   content: string
 }
 
@@ -28,15 +33,15 @@ export const getComments = (articleId: number, params: CommentListParams = { lim
   if (!articleId) {
     return Promise.resolve([])
   }
-  return request.get<Comment[]>(`/article/${articleId}/comments`, { params })
+  return request.get<Comment[]>(`/article/${articleId}/comments?limit=${params.limit}&offset=${params.offset}`)
 }
 
 // 发表评论
-export const addComment = (params: AddCommentParams) => {
-  return request.post('/comment/add', params)
+export const addComment = (articleId: number, content: string) => {
+  return request.post(`/article/${articleId}/comment`, { content })
 }
 
 // 删除评论
-export const deleteComment = (commentId: number) => {
-  return request.post(`/comment/delete/${commentId}`)
+export const deleteComment = (articleId: number, commentId: number) => {
+  return request.post(`/article/${articleId}/comment/${commentId}/delete`)
 } 
