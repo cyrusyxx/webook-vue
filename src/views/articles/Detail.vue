@@ -35,6 +35,59 @@
 
           <div class="article-content" v-html="article.content"></div>
         </el-card>
+
+        <!-- 评论区域 -->
+        <el-card class="comment-card" shadow="hover">
+          <template #header>
+            <div class="comment-header">
+              <h2>评论</h2>
+              <span class="comment-count">{{ comments.length }} 条评论</span>
+            </div>
+          </template>
+
+          <!-- 评论表单 -->
+          <div class="comment-form">
+            <el-input
+              v-model="commentContent"
+              type="textarea"
+              :rows="3"
+              placeholder="写下你的评论..."
+              :maxlength="500"
+              show-word-limit
+            />
+            <div class="comment-form-actions">
+              <el-button type="primary" @click="submitComment" :loading="submitting">
+                发表评论
+              </el-button>
+            </div>
+          </div>
+
+          <!-- 评论列表 -->
+          <div class="comment-list">
+            <div v-for="comment in comments" :key="comment.id" class="comment-item">
+              <div class="comment-user">
+                <el-avatar :size="40" :src="comment.user.avatar || ''">
+                  {{ comment.user.nickname?.charAt(0) || 'U' }}
+                </el-avatar>
+                <div class="comment-user-info">
+                  <span class="comment-username">{{ comment.user.nickname || '匿名用户' }}</span>
+                  <span class="comment-time">{{ formatDate(comment.ctime) }}</span>
+                </div>
+              </div>
+              <div class="comment-content">{{ comment.content }}</div>
+              <div class="comment-actions">
+                <el-button 
+                  v-if="comment.user.id === userStore.profile?.id"
+                  type="danger" 
+                  link 
+                  @click="deleteComment(comment.id)"
+                >
+                  删除
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </el-card>
       </template>
       <template v-else>
         <el-empty description="文章不存在" />
@@ -49,10 +102,16 @@ import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Collection } from '@element-plus/icons-vue'
 import { getPubArticleDetail, likeArticle, collectArticle } from '@/api/article'
+import { useUserStore } from '@/stores/user'
+import { getComments, addComment, deleteComment as deleteCommentApi } from '@/api/comment'
 
 const route = useRoute()
 const loading = ref(false)
 const article = ref<any>(null)
+const comments = ref<any[]>([])
+const commentContent = ref('')
+const submitting = ref(false)
+const userStore = useUserStore()
 
 // 获取文章详情
 const getArticle = async () => {
@@ -132,8 +191,77 @@ const handleCollect = async () => {
   }
 }
 
+// 获取评论列表
+const getCommentList = async () => {
+  try {
+    const articleId = parseInt(route.params.id as string)
+    if (isNaN(articleId)) {
+      console.warn('无效的文章ID')
+      comments.value = []
+      return
+    }
+    const res = await getComments(articleId, { limit: 10, offset: 0 })
+    comments.value = res || []
+  } catch (error) {
+    console.error('获取评论列表失败:', error)
+    ElMessage.error('获取评论列表失败')
+    comments.value = []
+  }
+}
+
+// 提交评论
+const submitComment = async () => {
+  if (!commentContent.value.trim()) {
+    ElMessage.warning('请输入评论内容')
+    return
+  }
+  
+  if (!userStore.token) {
+    ElMessage.warning('请先登录')
+    return
+  }
+
+  submitting.value = true
+  try {
+    const articleId = parseInt(route.params.id as string)
+    if (isNaN(articleId)) return
+    await addComment({
+      article_id: articleId,
+      content: commentContent.value
+    })
+    commentContent.value = ''
+    ElMessage.success('评论成功')
+    getCommentList()
+  } catch (error) {
+    console.error('发表评论失败:', error)
+    ElMessage.error('发表评论失败')
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 删除评论
+const deleteComment = async (commentId: number) => {
+  try {
+    await ElMessageBox.confirm('确定要删除这条评论吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await deleteCommentApi(commentId)
+    ElMessage.success('删除成功')
+    getCommentList()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除评论失败:', error)
+      ElMessage.error('删除评论失败')
+    }
+  }
+}
+
 onMounted(() => {
   getArticle()
+  getCommentList()
 })
 </script>
 
@@ -271,5 +399,82 @@ h1 {
   .action-btn {
     width: 100%;
   }
+}
+
+.comment-card {
+  margin-top: 20px;
+  border-radius: 12px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #496E7C;
+}
+
+.comment-count {
+  color: #91B2BE;
+  font-size: 14px;
+}
+
+.comment-form {
+  margin-bottom: 30px;
+}
+
+.comment-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.comment-list {
+  margin-top: 20px;
+}
+
+.comment-item {
+  padding: 15px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.comment-user-info {
+  margin-left: 10px;
+}
+
+.comment-username {
+  font-weight: 500;
+  color: #496E7C;
+}
+
+.comment-time {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #91B2BE;
+}
+
+.comment-content {
+  margin: 10px 0;
+  line-height: 1.6;
+  color: #333;
+}
+
+.comment-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 </style> 
