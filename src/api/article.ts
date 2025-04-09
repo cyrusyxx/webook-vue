@@ -14,6 +14,7 @@ export interface Article {
   view_cnt?: number
   ctime?: string
   utime?: string
+  image_urls?: string[]
 }
 
 export interface ArticleListParams {
@@ -25,6 +26,7 @@ export interface EditArticleParams {
   id?: number
   title: string
   content: string
+  image_urls?: string[]
 }
 
 // 编辑文章

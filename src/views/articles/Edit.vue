@@ -17,7 +17,7 @@
       </div>
 
       <el-card class="editor-card" shadow="hover">
-        <Editor v-model="article" />
+        <Editor v-model="article" @image-uploaded="handleImageUploaded" />
       </el-card>
       
       <div class="tips">
@@ -38,7 +38,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Document, Position } from '@element-plus/icons-vue'
-import Editor from '@/components/editor/index.vue'
+import Editor from '@/components/Editor.vue'
 import { getArticleDetail, editArticle, publishArticle } from '@/api/article'
 
 const route = useRoute()
@@ -51,6 +51,16 @@ const article = ref({
 })
 const saving = ref(false)
 const publishing = ref(false)
+const imageUrls = ref<string[]>([])  // 存储上传的图片URL
+
+// 处理图片上传
+const handleImageUploaded = (url: string) => {
+  if (!imageUrls.value.includes(url)) {
+    imageUrls.value.push(url)
+    console.log('图片上传成功:', url)
+    console.log('当前图片列表:', imageUrls.value)
+  }
+}
 
 // 获取文章详情
 const getDetail = async () => {
@@ -63,6 +73,10 @@ const getDetail = async () => {
     article.value = {
       title: res.title,
       content: res.content
+    }
+    // 如果后端返回的数据中包含图片URL，应该在这里提取出来
+    if (res.image_urls) {
+      imageUrls.value = res.image_urls
     }
   } catch (error) {
     console.error('获取文章详情失败:', error)
@@ -82,7 +96,8 @@ const handleSave = async () => {
     await editArticle({
       id: id.value,
       title: article.value.title,
-      content: article.value.content
+      content: article.value.content,
+      image_urls: imageUrls.value  // 添加图片URL
     })
     ElMessage.success('保存成功')
     router.push('/articles')
@@ -105,7 +120,8 @@ const handlePublish = async () => {
     await publishArticle({
       id: id.value,
       title: article.value.title,
-      content: article.value.content
+      content: article.value.content,
+      image_urls: imageUrls.value  // 添加图片URL
     })
     ElMessage.success('发布成功')
     router.push('/articles')
