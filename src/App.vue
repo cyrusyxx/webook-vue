@@ -25,11 +25,4 @@ onErrorCaptured((err, instance, info) => {
 #app {
   min-height: 100vh;
 }
-
-/* 确保弹窗组件在最上层 */
-.el-popper,
-.el-overlay,
-.el-dialog__wrapper {
-  z-index: 9999 !important;
-}
 </style>
