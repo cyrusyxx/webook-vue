@@ -117,15 +117,31 @@ const handlePublish = async () => {
 
   publishing.value = true
   try {
+    // 先保存文章
+    const savedId = await editArticle({
+      id: id.value,
+      title: article.value.title,
+      content: article.value.content,
+      image_urls: imageUrls.value
+    })
+    
+    // 如果是新文章，更新ID
+    if (!id.value && savedId) {
+      id.value = typeof savedId === 'number' ? savedId : Number(savedId)
+    }
+    
+    // 然后发布文章
     await publishArticle({
       id: id.value,
       title: article.value.title,
       content: article.value.content,
-      image_urls: imageUrls.value  // 添加图片URL
+      image_urls: imageUrls.value
     })
+    
     ElMessage.success('发布成功')
     router.push('/articles')
   } catch (error) {
+    console.error('发布失败:', error)
     ElMessage.error('发布失败')
   } finally {
     publishing.value = false
