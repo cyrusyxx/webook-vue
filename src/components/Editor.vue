@@ -51,7 +51,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: { title: string; content: string }): void
-  (e: 'image-uploaded', url: string): void
 }>()
 
 // 标题和内容
@@ -106,9 +105,6 @@ function customUploadImage(file: File, insertFn: (url: string, alt: string, href
       // 获取图片 URL
       const url = response.data.url
       
-      // 触发图片上传事件
-      emit('image-uploaded', url)
-      
       // 插入图片到编辑器
       insertFn(url, file.name, url)
       
@@ -123,19 +119,72 @@ function customUploadImage(file: File, insertFn: (url: string, alt: string, href
     })
 }
 
+// 上传视频
+function customUploadVideo(file: File, insertFn: (url: string) => void) {
+  // 视频服务器地址
+  const uploadUrl = 'http://47.112.100.83:8000/upload'
+  
+  // 创建 FormData
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  // 显示上传中消息
+  const loadingMsg = ElMessage({
+    message: '视频上传中...',
+    type: 'info',
+    duration: 0
+  })
+  
+  // 上传视频
+  axios.post(uploadUrl, formData)
+    .then(response => {
+      // 关闭上传中消息
+      loadingMsg.close()
+      
+      // 获取视频 URL
+      const url = response.data.url
+      
+      // 插入视频到编辑器
+      insertFn(url)
+      
+      ElMessage.success('视频上传成功')
+    })
+    .catch(error => {
+      // 关闭上传中消息
+      loadingMsg.close()
+      
+      console.error('视频上传失败:', error)
+      ElMessage.error('视频上传失败')
+    })
+}
+
 // 编辑器配置
 const editorConfig: Partial<IEditorConfig> = {
   placeholder: '请输入内容...',
   MENU_CONF: {
     uploadImage: {
-      // 自定义上传函数
+      // 自定义上传图片函数
       customUpload: customUploadImage
+    },
+    insertVideo: {
+      // 校验视频链接
+      checkVideo: (src: string) => {
+        // 简化处理，直接返回 true
+        return true
+      },
+      // 自定义上传视频
+      customUpload: customUploadVideo
     }
   }
 }
 
 // 工具栏配置
-const toolbarConfig: Partial<IToolbarConfig> = {}
+const toolbarConfig: Partial<IToolbarConfig> = {
+  insertKeys: {
+    index: 24, // 位置放在后面一些
+    keys: ['uploadImage', 'insertVideo']
+  }
+}
 
 // 监听 props 变化
 watch(() => props.modelValue, (newVal) => {
@@ -153,6 +202,28 @@ watch(
   }
 )
 </script>
+
+<style>
+/* 修复编辑器弹出菜单层级问题的全局样式 */
+.w-e-panel-container, 
+.w-e-menu-panel, 
+.w-e-dropdown-panel,
+.w-e-drop-list,
+.w-e-drop-panel {
+  z-index: 2500 !important;
+}
+
+.w-e-tooltip,
+.w-e-bar-item-group {
+  z-index: 2501 !important;
+}
+
+/* 特别处理颜色选择器 */
+.w-e-color-picker-container,
+div[data-w-e-type="color-picker"] {
+  z-index: 2502 !important;
+}
+</style>
 
 <style scoped>
 .editor {
@@ -178,5 +249,14 @@ watch(
 :deep(.el-input__prefix) {
   font-size: 18px;
   color: #999;
+}
+
+/* 编辑器弹窗层级 */
+:deep(.w-e-toolbar) {
+  z-index: 2000 !important;
+}
+
+:deep(.w-e-text-container) {
+  z-index: 1500 !important;
 }
 </style> 
