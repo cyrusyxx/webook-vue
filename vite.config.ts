@@ -13,6 +13,9 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
+    allowedHosts: [
+      '*'
+    ],
     proxy: {
       '/api/upload': {
         target: 'http://47.112.100.83:8000',
@@ -25,5 +28,5 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-  }
+  },
 })
