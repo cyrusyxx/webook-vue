@@ -40,7 +40,6 @@ import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor'
 import { ElMessage } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
-import axios from 'axios'
 
 const props = defineProps<{
   modelValue: {
@@ -83,8 +82,8 @@ const handleChange = () => {
 
 // 上传图片
 function customUploadImage(file: File, insertFn: (url: string, alt: string, href: string) => void) {
-  // 图片服务器地址
-  const uploadUrl = 'http://47.112.100.83:8000/upload'
+  // 图片服务器地址 - 使用代理
+  const uploadUrl = '/api/upload'
   
   // 创建 FormData
   const formData = new FormData()
@@ -98,13 +97,30 @@ function customUploadImage(file: File, insertFn: (url: string, alt: string, href
   })
   
   // 上传图片
-  axios.post(uploadUrl, formData)
+  fetch(uploadUrl, {
+    method: 'POST',
+    body: formData
+  })
     .then(response => {
+      console.log('服务器状态:', response.status, response.statusText)
+      if (!response.ok) {
+        throw new Error(`HTTP错误 ${response.status}`)
+      }
+      return response.json() // 直接使用json()方法
+    })
+    .then(data => {
+      console.log('解析后数据:', data)
+      
       // 关闭上传中消息
       loadingMsg.close()
       
+      if (!data || !data.url) {
+        throw new Error('响应中没有URL字段')
+      }
+      
       // 获取图片 URL
-      const url = response.data.url
+      const url = data.url
+      console.log('获取到URL:', url)
       
       // 触发图片上传事件
       emit('image-uploaded', url)
@@ -118,8 +134,8 @@ function customUploadImage(file: File, insertFn: (url: string, alt: string, href
       // 关闭上传中消息
       loadingMsg.close()
       
-      console.error('图片上传失败:', error)
-      ElMessage.error('图片上传失败')
+      console.error('处理过程中出错:', error)
+      ElMessage.error('图片上传失败: ' + error.message)
     })
 }
 
