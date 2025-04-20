@@ -51,4 +51,11 @@ body {
 
 .el-form-item__label {
   font-weight: 500;
+}
+
+/* 隐藏视频相关菜单元素 */
+[data-menu-key="group-video"],
+div[data-menu-key="group-video"],
+button[data-menu-key="group-video"] {
+  display: none !important;
 } 
