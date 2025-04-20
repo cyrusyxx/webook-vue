@@ -21,6 +21,14 @@
           />
         </el-form-item>
 
+        <el-form-item prop="nickname">
+          <el-input
+            v-model="form.nickname"
+            placeholder="请输入昵称"
+            :prefix-icon="User"
+          />
+        </el-form-item>
+
         <el-form-item prop="password">
           <el-input
             v-model="form.password"
@@ -70,8 +78,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
-import { Message, Lock, Key } from '@element-plus/icons-vue'
-import { register } from '@/api/user'
+import { Message, Lock, Key, User } from '@element-plus/icons-vue'
+import { register, editProfile, login } from '@/api/user'
 
 const router = useRouter()
 const loading = ref(false)
@@ -79,6 +87,7 @@ const formRef = ref<FormInstance>()
 
 const form = ref({
   email: '',
+  nickname: '',
   password: '',
   confirmPassword: ''
 })
@@ -93,10 +102,23 @@ const validatePass = (rule: any, value: string, callback: any) => {
   }
 }
 
+const validateNickname = (rule: any, value: string, callback: any) => {
+  if (value.trim() === '') {
+    callback(new Error('昵称不能为空格'))
+  } else {
+    callback()
+  }
+}
+
 const rules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+  ],
+  nickname: [
+    { required: true, message: '请输入昵称', trigger: 'blur' },
+    { min: 2, max: 20, message: '昵称长度在2-20个字符之间', trigger: 'blur' },
+    { validator: validateNickname, trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -116,9 +138,34 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        await register(form.value)
-        ElMessage.success('注册成功')
-        router.push('/users/login')
+        // 先注册用户
+        await register({
+          email: form.value.email,
+          password: form.value.password,
+          confirmPassword: form.value.confirmPassword
+        })
+        
+        // 注册成功后登录并更新昵称
+        try {
+          // 先登录
+          await login({
+            email: form.value.email,
+            password: form.value.password
+          })
+          
+          // 登录成功后更新昵称
+          await editProfile({ 
+            nickname: form.value.nickname,
+            birthday: '',
+            description: ''
+          })
+          ElMessage.success('注册成功')
+          router.push('/users/login')
+        } catch (updateError) {
+          console.error('昵称更新失败', updateError)
+          ElMessage.warning('注册成功，但昵称设置失败，请登录后重新设置')
+          router.push('/users/login')
+        }
       } catch (error: any) {
         if (error.response) {
           ElMessage.error(error.response.data.message || '注册失败')
